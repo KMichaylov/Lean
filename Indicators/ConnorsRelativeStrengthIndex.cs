@@ -7,7 +7,7 @@ public class ConnorsRelativeStrengthIndex : Indicator, IIndicatorWarmUpPeriodPro
 {
     private readonly RelativeStrengthIndex _rsi;
     private readonly RateOfChange _roc;
-    private readonly RelativeStrengthIndex _updownRsi;
+    private readonly StreakRelativeStrengthIndex _streakRsi;
     public ConnorsRelativeStrengthIndex(
         string name, 
         int rsiPeriod,
@@ -16,7 +16,7 @@ public class ConnorsRelativeStrengthIndex : Indicator, IIndicatorWarmUpPeriodPro
         : base(name)
     {
         _rsi = new RelativeStrengthIndex($"{name}_RSI", rsiPeriod);
-        _updownRsi = new RelativeStrengthIndex($"{name}_UpDownRSI", upDownLenght);
+        _streakRsi = new StreakRelativeStrengthIndex($"{name}_UpDownRSI", upDownLenght);
         _roc = new RateOfChange($"{name}_ROC", rocPeriod);
     }
 
@@ -24,7 +24,7 @@ public class ConnorsRelativeStrengthIndex : Indicator, IIndicatorWarmUpPeriodPro
     protected override decimal ComputeNextValue(IndicatorDataPoint input)
     {
         _rsi.Update(input);
-        _updownRsi.Update(input);
+        _streakRsi.Update(input);
         _roc.Update(input);
         
         if (!_rsi.IsReady)
@@ -32,7 +32,7 @@ public class ConnorsRelativeStrengthIndex : Indicator, IIndicatorWarmUpPeriodPro
             return 0;
         }
 
-        if (!_updownRsi.IsReady)
+        if (!_streakRsi.IsReady)
         {
             return 0;
         }
@@ -42,7 +42,7 @@ public class ConnorsRelativeStrengthIndex : Indicator, IIndicatorWarmUpPeriodPro
             return 0;
         }
         
-        return (_rsi.Current.Value + _updownRsi.Current.Value + _roc.Current.Value) / 3;
+        return (_rsi.Current.Value + _streakRsi.Current.Value + _roc.Current.Value) / 3;
     }
 
     public int WarmUpPeriod { get; }
