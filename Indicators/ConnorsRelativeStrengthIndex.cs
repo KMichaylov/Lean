@@ -18,29 +18,16 @@ public class ConnorsRelativeStrengthIndex : Indicator, IIndicatorWarmUpPeriodPro
         _rsi = new RelativeStrengthIndex($"{name}_RSI", rsiPeriod);
         _streakRsi = new StreakRelativeStrengthIndex($"{name}_UpDownRSI", upDownLenght);
         _roc = new RateOfChange($"{name}_ROC", rocPeriod);
+        
     }
 
-    public override bool IsReady { get; }
+    public override bool IsReady => _rsi.IsReady && _roc.IsReady && _streakRsi.IsReady;
+
     protected override decimal ComputeNextValue(IndicatorDataPoint input)
     {
         _rsi.Update(input);
         _streakRsi.Update(input);
         _roc.Update(input);
-        
-        if (!_rsi.IsReady)
-        {
-            return 0;
-        }
-
-        if (!_streakRsi.IsReady)
-        {
-            return 0;
-        }
-
-        if (!_roc.IsReady)
-        {
-            return 0;
-        }
         
         return (_rsi.Current.Value + _streakRsi.Current.Value + _roc.Current.Value) / 3;
     }
